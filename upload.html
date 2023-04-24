@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+       <meta charset='utf-8'>
+       <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+       <title>Page Title</title>
+       <meta name='viewport' content='width=device-width, initial-scale=1'>
+       <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+       <style>
+              body {
+                     margin: 8px;
+              }
+
+              .el {
+                     background-color: #eeeeee;
+                     padding: 8px;
+                     margin-bottom: 8px;
+                     border: 1px solid #aaaaaa;
+              }
+
+              a {
+                     font-weight: bold;
+              }
+       </style>
+       <script>
+              let presets = {};
+              function loadPresets(selectedName) {
+                     presets = JSON.parse(getCookie('presets'));
+                     let s = document.querySelector("#preset");
+                     while (s.options.length > 0)
+                            s.remove(0);
+                     for (var key in presets) {
+                            let o = document.createElement("OPTION");
+                            o.value = key;
+                            o.text = key;
+                            s.add(o);
+                     }
+                     if (selectedName !== undefined)
+                            s.value = selectedName;
+              }
+
+              function savePresets() {
+                     setCookie('presets', JSON.stringify(presets));
+              }
+
+              function loadPreset(presetName) {
+                     let p = document.querySelector("#preset").value;
+                     let s = presets[p];
+                     document.querySelectorAll(".set").forEach(e => {
+                            if (e.tagName == 'INPUT' && e.type == 'checkbox')
+                                   e.checked = s[e.id];
+                            else
+                                   e.value = s[e.id];
+                     });
+              }
+
+              function savePreset() {
+                     if (presets.length == 0)
+                            presets = {};
+
+                     let presetName = document.querySelector("#presetName").value;
+                     if (presetName.length > 0) {
+                            let j = {};
+                            document.querySelectorAll(".set").forEach(e => {
+                                   if (e.tagName == 'INPUT' && e.type == 'checkbox')
+                                          j[e.id] = e.checked;
+                                   else
+                                          j[e.id] = e.value;
+                            });
+                            presets[presetName] = j;
+                            savePresets();
+                            loadPresets(presetName);
+                     } else
+                            alert("Укажите имя пресета");
+              }
+
+              function deletePreset() {
+                     let p = document.querySelector("#preset").value;
+                     delete presets[p];
+                     savePresets();
+                     loadPresets();
+              }
+
+              function setCookie(cname, cvalue, exdays) {
+                     if (exdays === undefined)
+                            exdays = 365;
+                     const d = new Date();
+                     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                     let expires = "expires=" + d.toUTCString();
+                     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+              }
+
+              function getCookie(cname) {
+                     let name = cname + "=";
+                     let decodedCookie = decodeURIComponent(document.cookie);
+                     let ca = decodedCookie.split(';');
+                     for (let i = 0; i < ca.length; i++) {
+                            let c = ca[i];
+                            while (c.charAt(0) == ' ') {
+                                   c = c.substring(1);
+                            }
+                            if (c.indexOf(name) == 0) {
+                                   return c.substring(name.length, c.length);
+                            }
+                     }
+                     return "";
+              }
+
+              window.onload = (event) => {
+                     loadPresets();
+              };
+       </script>
+</head>
+
+<body>
+       <p><a href="/queue">Просмотр очереди</a></p>
+       <form method="post" enctype="multipart/form-data" action="upload-avatar">
+              <div class="el">
+                     <label for="file">Выберите изображение:</label>
+                     <input type="file" id="file" name="dataFile" accept="image/png, image/jpeg">
+                     <br>
+                     <button>Загрузить</button>
+              </div>
+
+              <div class="el">
+
+                     <label for="set1">Черно-белое</label>
+                     <input type="checkbox" id="set1" name="set1" value="set1" class="set">
+                     <br>
+
+                     <label for="set2">Прическа</label>
+                     <select id="set2" name="set2" class="set">
+                            <option value="1">Без изменений</option>
+                            <option value="2">Лысый</option>
+                            <option value="3">Кудрявые волосы</option>
+                     </select>
+                     <br>
+
+                     <label for="set3">Аксессуары</label>
+                     <select id="set3" name="set3" class="set">
+                            <option value="1">Без изменений</option>
+                            <option value="2">Очки</option>
+                     </select>
+                     <br>
+
+                     <label for="set4">Цвет волос</label>
+                     <select id="set4" name="set4" class="set">
+                            <option value="1">Без изменений</option>
+                            <option value="2">Черный</option>
+                     </select>
+                     <br>
+
+                     <label for="set5">Растительность лица</label>
+                     <select id="set5" name="set5" class="set">
+                            <option value="1">Без изменений</option>
+                            <option value="2">Усы</option>
+                            <option value="3">Борода</option>
+                     </select>
+                     <br>
+
+
+              </div>
+       </form>
+
+       <div class="el">
+              <label for="preset">Preset</label>
+              <select id="preset" onchange="document.querySelector('#presetName').value = this.value"></select>
+              <button id="load" onclick="loadPreset()">Загрузить</button>
+              <button id="delete" onclick="deletePreset()">Удалить</button>
+              <br>
+              <input id="presetName" type="text" placeholder="Имя нового пресета">
+              <button id="save" onclick="savePreset()">Сохранить</button>
+       </div>
+
+</body>
+
+</html>

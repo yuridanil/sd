@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+       <meta charset='utf-8'>
+       <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+       <title>Page Title</title>
+       <meta name='viewport' content='width=device-width, initial-scale=1'>
+       <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+       <style>
+              body {
+                     margin: 8px;
+              }
+
+              table,
+              th,
+              td {
+                     border-collapse: collapse;
+                     border: 1px solid;
+                     white-space: nowrap;
+                     background-color: #eeeeee;
+              }
+
+              td {
+                     padding: 4px;
+                     text-align: center;
+              }
+
+              a {
+                     font-weight: bold;
+              }
+
+              img {
+                     width: 48px;
+                     height: 48px;
+
+              }
+       </style>
+       <script>
+              let timeout;
+              function loadQueue() {
+                     clearTimeout(timeout);
+                     const params = {
+                            limit: document.querySelector("#selectLimit").value,
+                            filter: document.querySelector("#selectStatus").value
+                     };
+                     const options = {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: { "Content-Type": "application/json", 'Access-Control-Allow-Origin': '*' },
+                            body: JSON.stringify(params)
+                     };
+                     fetch('/get-queue', options)
+                            .then((response) => response.text())
+                            .then((resp) => {
+                                   let j = JSON.parse(resp);
+                                   let t = document.querySelector("#results").getElementsByTagName('tbody')[0];
+                                   t.innerHTML = "";
+                                   for (o of j) {
+                                          let r = document.createElement("tr");
+                                          let td;
+
+                                          td = document.createElement("td");
+                                          td.innerHTML = o.id;
+                                          r.appendChild(td);
+
+                                          td = document.createElement("td");
+                                          td.innerHTML = o.name;
+                                          r.appendChild(td);
+
+                                          td = document.createElement("td");
+                                          td.align
+                                          td.innerHTML = "<a href=/uploads/" + o.name + " target=_blank><img src='/uploads/" + o.name + "''></a>";
+                                          r.appendChild(td);
+
+                                          td = document.createElement("td");
+                                          td.innerHTML = o.processed == 0 ? "В очереди" : o.processed == 1 ? "Обрабатывается" :
+                                                 "<a href=/results/" + o.name + " target=_blank>Обработан</a>";
+                                          r.appendChild(td);
+
+                                          t.appendChild(r);
+                                   }
+                                   if (document.querySelector("#selectInterval").value > 0)
+                                          timeout = setTimeout(loadQueue, document.querySelector("#selectInterval").value * 1000);
+                            });
+              }
+
+              window.onload = (e) => {
+                     loadQueue();
+              }
+
+       </script>
+</head>
+
+<body>
+       <p><a id="q" href="/upload">Загрузить новый файл</a></p>
+       <p>
+              <label for="selectInterval">Автообновление</label>
+              <select id="selectInterval" name="selectInterval" onchange="loadQueue()">
+                     <option value="0">Нет</option>
+                     <option value="1">1 секунда</option>
+                     <option value="5">5 секунд</option>
+                     <option value="10" selected>10 секунд</option>
+                     <option value="60">1 минута</option>
+              </select>
+              <label for="selectLimit">Лимит</label>
+              <select id="selectLimit" name="selectLimit" onchange="loadQueue()">
+                     <option value="10">10 строк</option>
+                     <option value="20" selected>20 строк</option>
+                     <option value="50">50 строк</option>
+                     <option value="100">100 строк</option>
+              </select>
+              <label for="selectStatus">Статус</label>
+              <select id="selectStatus" name="selectStatus" onchange="loadQueue()">
+                     <option value="4">Все</option>
+                     <option value="0">В очереди</option>
+                     <option value="1">Обрабатывается</option>
+                     <option value="2">Обработан</option>
+              </select>
+       </p>
+       <div>
+              <table id="results">
+                     <thead>
+                            <tr>
+                                   <th>id</th>
+                                   <th>Название</th>
+                                   <th>Исходник</th>
+                                   <th>Статус</th>
+                            </tr>
+                     </thead>
+                     <tbody>
+                     </tbody>
+              </table>
+       </div>
+</body>
+
+</html>
