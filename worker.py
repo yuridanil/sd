@@ -8,7 +8,7 @@ from PIL import Image, PngImagePlugin
 import base64
 from io import BytesIO
 
-cnx = mysql.connector.connect(user='test', password='test123', host='localhost', database='mynode')
+cnx = mysql.connector.connect(user='test', password='test123', host='localhost', database='mynode', port=3306)
 
 processed = 0
 id = 0
