@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var multer = require('multer')
 var db = require('./database');
 var app = express();
-var port = process.env.PORT || 3000;
+var port = 3001;
 
 // enable CORS
 app.use(cors());
@@ -40,7 +40,7 @@ var storage_res = multer.diskStorage({
       cb(null, 'results');
    },
    filename: function (req, file, cb) {
-      cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+      cb(null, file.originalname);
    }
 });
 
@@ -48,7 +48,7 @@ var upload_res = multer({ storage: storage_res });
 
 // handle single file upload
 app.post('/upload-avatar', upload.single('dataFile'), (req, res, next) => {
-   console.log(req)
+   // console.log(req)
    const file = req.file;
    if (!file) {
       return res.status(400).send({ message: 'Please upload a file.' });
@@ -65,7 +65,7 @@ app.post('/upload-avatar', upload.single('dataFile'), (req, res, next) => {
 });
 
 app.get("/upload", (req, res) => {
-   res.sendFile('upload.html', { root: __dirname})
+   res.sendFile('upload.html', { root: __dirname })
 });
 
 app.post("/get-queue", (req, res) => {
@@ -81,7 +81,7 @@ app.post("/get-queue", (req, res) => {
 
    var query = db.query(sql, values, function (err, result) {
       if (err) {
-         return res.send({ message: err});
+         return res.send({ message: err });
       } else {
          return res.send(result);
       }
@@ -89,7 +89,7 @@ app.post("/get-queue", (req, res) => {
 });
 
 app.get("/queue", (req, res) => {
-   res.sendFile('queue.html', { root: __dirname})
+   res.sendFile('queue.html', { root: __dirname })
 });
 
 app.post("/get-next", (req, res) => {
@@ -97,47 +97,43 @@ app.post("/get-next", (req, res) => {
    var values = [req.body.login, req.body.password];
    var query = db.query(sql, values, function (err, results) {
       if (err) {
-         return res.send({ message: err});
+         return res.send({ message: err });
       } else {
-         return res.send(results[0][0]);
-      }
+         r = results[0][0]
+         if (r.result === 'ok' ) {
+            res.header('result', r.result)
+            res.header('message', r.message)
+            res.header('id', r.id || '')
+            res.header('filename', r.name || '')
+            res.header('parameters', r.parameters || '')
+            res.sendFile(path.join(__dirname, './uploads', r.name))
+         }
+         else {
+            res.header('result', r.result)
+            res.header('message', r.message)
+            return res.send(r);
+         }
+      }``
    });
 });
 
 // handle upload results
 app.post('/upload-result', upload_res.single('dataFile'), (req, res, next) => {
    const file = req.file;
-   console.log(JSON.stringify(req.body.id))
    if (!file) {
       return res.status(400).send({ message: 'Please upload a result file.' });
    }
 
    var sql = "UPDATE files f SET f.processed = 2 WHERE id = ?";
    var values = [parseInt(req.body.id),];
-    var query = db.query(sql, values, function (err, result) {
-       if (err) {
-          return res.send({ message: err, file });
-       } else {
-          return res.send({"result": "ok"});
-       }
-    });
+   var query = db.query(sql, values, function (err, result) {
+      if (err) {
+         return res.send({ message: err, file });
+      } else {
+         return res.send({ "result": "ok" });
+      }
+   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 app.listen(port, () => {
    console.log('Server started on: ' + port);
