@@ -59,7 +59,7 @@ app.post('/upload-avatar', upload.single('dataFile'), (req, res, next) => {
       if (err) {
          return res.send({ message: err, file });
       } else {
-         return res.send("Файл успешно загружен id = " + result.insertId + ".<br>Для просмотре очереди нажмите <a href='/queue'>здесь</a><br>Для загрузки нового файла нажмите <a href='/upload'>здесь</a>");
+         return res.send("Файл успешно загружен id = " + result.insertId + ".<br>Для просмотра очереди нажмите <a href='/queue'>здесь</a><br>Для загрузки нового файла нажмите <a href='/upload'>здесь</a>");
       }
    });
 });
