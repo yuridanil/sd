@@ -7,7 +7,7 @@ from PIL import Image, PngImagePlugin
 import base64
 from io import BytesIO
 
-server_url = "http://localhost:3000"
+server_url = "http://191.101.241.123:3001"
 next_url = server_url + "/get-next"
 res_url = server_url + "/upload-result"
 
@@ -21,7 +21,6 @@ while n < 1000:
     }
     response = requests.post(url=next_url, json=payload)
     r = response.json()
-    print(r['result'])
 
     if r['result'] == 'ok':
         id = r['id']
@@ -57,8 +56,10 @@ while n < 1000:
                 print("Result upload failed")   
         else:
             print("Error processing image in Stable Diffusion")
+    elif r['result'] == 'error':
+        print("Error: " + r['message'])
     else:
         print("No new files in the queue")
     n += 1
     print("[", n, "] Waiting for the next file...")
-    time.sleep(5)  # delay before next image
+    time.sleep(2)  # delay before next image
