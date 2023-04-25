@@ -1,128 +1,115 @@
-var express = require('express');
-var path = require('path');
-var cors = require('cors');
-var bodyParser = require('body-parser');
-var multer = require('multer')
-var db = require('./database');
-var app = express();
-var port = 3001;
+import json
+import time
+import requests
+import io
+import base64
+from PIL import Image, PngImagePlugin
+import base64
+from io import BytesIO
 
-// enable CORS
-app.use(cors());
-// parse application/json
-app.use(bodyParser.json());
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
-// serving static files
-app.use('/uploads', express.static('uploads'));
-app.use('/results', express.static('results'));
+# server_url = "http://191.101.241.123:3001"
+server_url = "http://localhost:3001"
+next_url = server_url + "/get-next"
+res_url = server_url + "/upload-result"
+sd_url = "http://127.0.0.1:7861"
 
-// request handlers
-app.get('/', (req, res) => {
-   res.send('Node js file upload rest apis');
-});
+processed = 0
+id = 0
+n = 0
+while n < 1000:
+    payload = {
+        "login": "bae4",
+        "password": "891a32"
+    }
+    response = requests.post(url=next_url, json=payload)
+    r = response.headers
+    #print(r)
 
-// handle storage using multer
-var storage = multer.diskStorage({
-   destination: function (req, file, cb) {
-      cb(null, 'uploads');
-   },
-   filename: function (req, file, cb) {
-      cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-   }
-});
+    if r['result'] == 'ok':
+        id = r['id']
+        filename = r['filename']
+        image = Image.open(BytesIO(response.content))
+        image.save('local_uploads/' + r['filename'])
 
-var upload = multer({ storage: storage });
+        parameters = json.loads(r['parameters'])
 
-// handle storage using multer
-var storage_res = multer.diskStorage({
-   destination: function (req, file, cb) {
-      cb(null, 'results');
-   },
-   filename: function (req, file, cb) {
-      cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-   }
-});
+        print("Processing file " + filename)
+        if "set1" in parameters:
+            set1 = 1
+        else:
+            set1 = 0
+        set2 = int(parameters["set2"])
+        set3 = int(parameters["set3"])
+        set4 = int(parameters["set4"])
+        set5 = int(parameters["set5"])
+        print("File id:", id)
+        print("Filename:", filename)
+        print("Params:", set1, set2, set3, set4, set5)
+        print("Starting Stable diffusion process...")
 
-var upload_res = multer({ storage: storage_res });
+        prompt = "photorealistic, masterpiece"
 
-// handle single file upload
-app.post('/upload-avatar', upload.single('dataFile'), (req, res, next) => {
-   console.log(req)
-   const file = req.file;
-   if (!file) {
-      return res.status(400).send({ message: 'Please upload a file.' });
-   }
-   var sql = "INSERT INTO `files`(`name`, `parameters`) VALUES (?, ?)";
-   var values = [req.file.filename, JSON.stringify(req.body)];
-   var query = db.query(sql, values, function (err, result) {
-      if (err) {
-         return res.send({ message: err, file });
-      } else {
-         return res.send("Файл успешно загружен id = " + result.insertId + ".<br>Для просмотре очереди нажмите <a href='/queue'>здесь</a><br>Для загрузки нового файла нажмите <a href='/upload'>здесь</a>");
-      }
-   });
-});
+        if set1 == 1:
+            prompt += ", A black and white portrait"
+        print(set2)
+        if set2 == 2:
+            prompt += ", bald"
+        if set2 == 3:
+            prompt += ", curly hair"
+        if set3 == 2:
+            prompt += ", in glasses"
+        if set4 == 2:
+            prompt += ", black hair"
+        if set5 == 2:
+            prompt += ", mustache"
+        if set5 == 3:
+            prompt += ", beard"
+        print("Prompt:", prompt)
 
-app.get("/upload", (req, res) => {
-   res.sendFile('upload.html', { root: __dirname})
-});
+        with open("local_uploads/" + filename, "rb") as image_file:
+            data = base64.b64encode(image_file.read())
 
-app.post("/get-queue", (req, res) => {
-   var sql;
-   if (req.body.filter == '0' || req.body.filter == '1' || req.body.filter == '2') {
-      sql = "select * from files where processed = ? order by id desc limit ?";
-      var values = [parseInt(req.body.filter), parseInt(req.body.limit)];
-   }
-   else {
-      sql = "select * from files order by id desc limit ?";
-      var values = [parseInt(req.body.limit),];
-   }
+        payload = {
+            "prompt": prompt,
+            "steps": 5,
+            "init_images": [data.decode('utf-8')]
+        }
+        
+        response = requests.post(url=f'{sd_url}/sdapi/v1/img2img', json=payload)
 
-   var query = db.query(sql, values, function (err, result) {
-      if (err) {
-         return res.send({ message: err});
-      } else {
-         return res.send(result);
-      }
-   });
-});
+        r = response.json()
 
-app.get("/queue", (req, res) => {
-   res.sendFile('queue.html', { root: __dirname})
-});
+        for i in r['images']:
+            image = Image.open(io.BytesIO(
+                base64.b64decode(i.split(",", 1)[0])))
 
-app.post("/get-next", (req, res) => {
-   var sql = "CALL get_next(?, ?)";
-   var values = [req.body.login, req.body.password];
-   var query = db.query(sql, values, function (err, results) {
-      if (err) {
-         return res.send({ message: err});
-      } else {
-         return res.send(results[0][0]);
-      }
-   });
-});
+            png_payload = {
+                "image": "data:image/png;base64," + i
+            }
+            response2 = requests.post(
+                url=f'{sd_url}/sdapi/v1/png-info', json=png_payload)
 
-// handle upload results
-app.post('/upload-result', upload_res.single('dataFile'), (req, res, next) => {
-   const file = req.file;
-   console.log(JSON.stringify(req.body.id))
-   if (!file) {
-      return res.status(400).send({ message: 'Please upload a result file.' });
-   }
+            pnginfo = PngImagePlugin.PngInfo()
+            pnginfo.add_text("parameters", response2.json().get("info"))
+            image.save('local_results/' + filename, pnginfo=pnginfo)
 
-   var sql = "UPDATE files f SET f.processed = 2 WHERE id = ?";
-   var values = [parseInt(req.body.id),];
-    var query = db.query(sql, values, function (err, result) {
-       if (err) {
-          return res.send({ message: err, file });
-       } else {
-          return res.send({"result": "ok"});
-       }
-    });
-});
+        print("Processing finished")
+        print("Uploadnig file...")
 
-app.listen(port, () => {
-   console.log('Server started on: ' + port);
-});
+        test_file = open("local_results/" + filename, "rb")
+        headers = {
+            "id": id,
+            "filename": filename,
+            "prompt": prompt
+        }
+        test_response = requests.post(res_url, files = {"dataFile": test_file}, headers=headers)
+
+    elif r['result'] == 'error':
+        print("Error: " + r['message'])
+        quit()
+    else:
+        print("No new files in the queue")
+    n += 1
+    print("[", n, "] Waiting for the next file...")
+    quit()
+    time.sleep(5)  # delay before next image
