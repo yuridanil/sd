@@ -61,7 +61,14 @@ while n < 1000:
         print("Processing file " + filename)
         print("File id:", id)
 
+# debug
+        data = base64.b64encode(response.content)
+        print(data)
+#        quit()
+# debug
+
         image = Image.open(BytesIO(response.content))
+
         image.save('worker_input/' + r['filename'])
 
         parameters = json.loads(r['parameters'])
@@ -72,13 +79,14 @@ while n < 1000:
 
         with open("worker_input/" + filename, "rb") as image_file:
             data = base64.b64encode(image_file.read())
+        print(data)
+        quit()
 
         payload = {
             "prompt": prompt,
             "steps": 5,
             "init_images": [data.decode('utf-8')]
         }
-        
         response = requests.post(url=f'{sd_url}/sdapi/v1/img2img', json=payload)
 
         r = response.json()
