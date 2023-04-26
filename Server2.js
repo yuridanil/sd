@@ -40,7 +40,8 @@ var storage_res = multer.diskStorage({
       cb(null, 'results');
    },
    filename: function (req, file, cb) {
-      cb(null, file.originalname);
+      //console.log(req.headers);
+      cb(null, req.headers.filename);
    }
 });
 
@@ -125,7 +126,7 @@ app.post('/upload-result', upload_res.single('dataFile'), (req, res, next) => {
    }
 
    var sql = "UPDATE files f SET f.processed = 2 WHERE id = ?";
-   var values = [parseInt(req.body.id),];
+   var values = [parseInt(req.headers.id),];
    var query = db.query(sql, values, function (err, result) {
       if (err) {
          return res.send({ message: err, file });
