@@ -7,8 +7,8 @@ from PIL import Image, PngImagePlugin
 import base64
 from io import BytesIO
 
-# server_url = "http://191.101.241.123:3001"
-server_url = "http://localhost:3001"
+server_url = "http://191.101.241.123:3001"
+#server_url = "http://localhost:3001"
 next_url = server_url + "/get-next"
 res_url = server_url + "/upload-result"
 sd_url = "http://127.0.0.1:7861"
@@ -57,16 +57,11 @@ while n < 1000:
         id = r['id']
         filename = r['filename']
 
-        print("Processing file " + filename)
-        print("File id:", id)
-
         data = base64.b64encode(response.content)
-
         parameters = json.loads(r['parameters'])
         prompt = makePrompt("photorealistic, masterpiece", parameters)
-        print("Prompt:", prompt)
 
-        print("Starting Stable diffusion process...")
+        print("Processing file " + filename + "\nFile id:", id + "\nPrompt:", prompt + "\nStarting Stable diffusion process...")
 
         payload = {
             "prompt": prompt,
@@ -77,8 +72,7 @@ while n < 1000:
 
         r = response.json()
 
-        print("Processing finished")
-        print("Uploadnig file...")
+        print("Processing finished, uploadnig file...")
 
         headers = {
             "id": id,
