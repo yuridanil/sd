@@ -12,6 +12,10 @@
                      margin: 8px;
               }
 
+              table {
+                     width: 100%;
+              }
+
               table,
               th,
               td {
@@ -20,10 +24,12 @@
                      white-space: nowrap;
                      background-color: #eeeeee;
               }
+
               th {
                      padding-left: 1cm;
                      padding-right: 1cm;
               }
+
               td {
                      padding: 4px;
                      text-align: center;
@@ -37,6 +43,13 @@
                      width: 48px;
                      height: 48px;
 
+              }
+
+              .el {
+                     background-color: #eeeeee;
+                     padding: 8px;
+                     margin-bottom: 8px;
+                     border: 1px solid #aaaaaa;
               }
        </style>
        <script>
@@ -97,8 +110,8 @@
 </head>
 
 <body>
-       <p><a id="q" href="/upload">Загрузить новый файл</a></p>
-       <p>
+       <p><button onclick="window.location.href='/upload'">Загрузить новый файл</button></p>
+       <div class="el">
               <label for="selectInterval">Автообновление</label>
               <select id="selectInterval" name="selectInterval" onchange="loadQueue()">
                      <option value="0">Нет</option>
@@ -121,7 +134,7 @@
                      <option value="1">Обрабатывается</option>
                      <option value="2">Обработан</option>
               </select>
-       </p>
+       </div>
        <div>
               <table id="results">
                      <thead>

@@ -22,6 +22,15 @@
               a {
                      font-weight: bold;
               }
+
+              .preset {
+                     min-width: 100px;
+              }
+
+              p {
+                     padding: 0px;
+                     margin: 4px;
+              }
        </style>
        <script>
               let presets = {};
@@ -114,63 +123,74 @@
 </head>
 
 <body>
-       <p><a href="/queue">Просмотр очереди</a></p>
+       <p><button onclick="window.location.href='/queue'">Просмотр очереди</button></p>
+
        <form method="post" enctype="multipart/form-data" action="upload-avatar">
               <div class="el">
-                     <label for="file">Выберите изображение:</label>
-                     <input type="file" id="file" name="dataFile" accept="image/png, image/jpeg">
-                     <br>
-                     <button>Загрузить</button>
+                     <p>
+                            <label for="file">Выберите изображение:</label>
+                            <input type="file" id="file" name="dataFile" accept="image/png, image/jpeg" class="hidden">
+                     </p>
+                     <p>
+                            <button>Загрузить файл</button>
+                     </p>
               </div>
 
               <div class="el">
+                     <p>
+                            <label for="set1">Черно-белое</label>
+                            <input type="checkbox" id="set1" name="set1" value="set1" class="set">
 
-                     <label for="set1">Черно-белое</label>
-                     <input type="checkbox" id="set1" name="set1" value="set1" class="set">
-                     <br>
+                     </p>
 
-                     <label for="set2">Прическа</label>
-                     <select id="set2" name="set2" class="set">
-                            <option value="1">Без изменений</option>
-                            <option value="2">Лысый</option>
-                            <option value="3">Кудрявые волосы</option>
-                     </select>
-                     <br>
+                     <p>
+                            <label for="set2">Прическа</label>
+                            <select id="set2" name="set2" class="set">
+                                   <option value="1">Без изменений</option>
+                                   <option value="2">Лысый</option>
+                                   <option value="3">Кудрявые волосы</option>
+                            </select>
+                     </p>
 
-                     <label for="set3">Аксессуары</label>
-                     <select id="set3" name="set3" class="set">
-                            <option value="1">Без изменений</option>
-                            <option value="2">Очки</option>
-                     </select>
-                     <br>
+                     <p>
+                            <label for="set3">Аксессуары</label>
+                            <select id="set3" name="set3" class="set">
+                                   <option value="1">Без изменений</option>
+                                   <option value="2">Очки</option>
+                            </select>
+                     </p>
 
-                     <label for="set4">Цвет волос</label>
-                     <select id="set4" name="set4" class="set">
-                            <option value="1">Без изменений</option>
-                            <option value="2">Черный</option>
-                     </select>
-                     <br>
+                     <p>
+                            <label for="set4">Цвет волос</label>
+                            <select id="set4" name="set4" class="set">
+                                   <option value="1">Без изменений</option>
+                                   <option value="2">Черный</option>
+                            </select>
+                     </p>
 
-                     <label for="set5">Растительность лица</label>
-                     <select id="set5" name="set5" class="set">
-                            <option value="1">Без изменений</option>
-                            <option value="2">Усы</option>
-                            <option value="3">Борода</option>
-                     </select>
-                     <br>
-
-
+                     <p>
+                            <label for="set5">Растительность лица</label>
+                            <select id="set5" name="set5" class="set">
+                                   <option value="1">Без изменений</option>
+                                   <option value="2">Усы</option>
+                                   <option value="3">Борода</option>
+                            </select>
+                     </p>
               </div>
        </form>
 
        <div class="el">
-              <label for="preset">Preset</label>
-              <select id="preset" onchange="document.querySelector('#presetName').value = this.value"></select>
-              <button id="load" onclick="loadPreset()">Загрузить</button>
-              <button id="delete" onclick="deletePreset()">Удалить</button>
-              <br>
-              <input id="presetName" type="text" placeholder="Имя нового пресета">
-              <button id="save" onclick="savePreset()">Сохранить</button>
+              <p>
+                     <label for="preset">Пресет</label>
+                     <select id="preset" class="preset"
+                            onchange="document.querySelector('#presetName').value = this.value"></select>
+                     <button id="load" onclick="loadPreset()">Загрузить</button>
+                     <button id="delete" onclick="deletePreset()">Удалить</button>
+              </p>
+              <p>
+                     <input id="presetName" type="text" placeholder="Имя нового пресета">
+                     <button id="save" onclick="savePreset()">Сохранить</button>
+              </p>
        </div>
 
 </body>
