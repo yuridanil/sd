@@ -28,12 +28,11 @@ CREATE TABLE files (
 	parameters json DEFAULT NULL,
 	processed tinyint DEFAULT 0,
 	prompt text DEFAULT NULL,
+	dt datetime DEFAULT CURRENT_TIMESTAMP,
+	worker_id int DEFAULT NULL,
 	PRIMARY KEY (id)
 )
 ENGINE = INNODB;
-
-
-DELIMITER $$
 
 CREATE
 DEFINER = 'mynode'@'%'
