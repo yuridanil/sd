@@ -6,6 +6,10 @@
     <title>Page Title</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <script>
+        window.onload = (event) => {
+            const params = new URLSearchParams(document.location.search);
+               document.querySelector("msg").innerHTML += params.get("id");
+              };
     </script>
 </head>
 <body>
