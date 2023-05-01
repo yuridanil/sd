@@ -81,7 +81,7 @@
                                           // td.innerHTML = o.name;
                                           let s = (new Date() - new Date(o.dt)) / 1000; // seconds ago
                                           if (s < 60)
-                                              td.innerHTML = s + " с.";
+                                              td.innerHTML = Math.round(s) + " с.";
                                           else if (s < 3600)
                                               td.innerHTML = Math.round(s / 60) + " м.";
                                           else if (s < 86400)
