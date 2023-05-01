@@ -74,10 +74,20 @@
 
                                           td = document.createElement("td");
                                           td.innerHTML = o.id;
+                                          td.title = o.name;
                                           r.appendChild(td);
 
                                           td = document.createElement("td");
-                                          td.innerHTML = o.name;
+                                          // td.innerHTML = o.name;
+                                          let s = (new Date() - new Date(o.dt)) / 1000; // seconds ago
+                                          if (s < 60)
+                                              td.innerHTML = s + " с.";
+                                          else if (s < 3600)
+                                              td.innerHTML = Math.round(s / 60) + " м.";
+                                          else if (s < 86400)
+                                              td.innerHTML = Math.round(s / 3600) + " ч.";
+                                          else
+                                              td.innerHTML = Math.round(s / 86400) + " дн.";
                                           r.appendChild(td);
 
                                           td = document.createElement("td");
@@ -136,7 +146,8 @@
                      <thead>
                             <tr>
                                    <th>id</th>
-                                   <th>Название</th>
+                                   <!-- <th>Название</th> -->
+                                   <th>Время</th>
                                    <th>Исходник</th>
                                    <th>Результат</th>
                             </tr>
